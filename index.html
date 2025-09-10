@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mukammal Daraxt Kesish O‘yini</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            touch-action: none;
+            user-select: none;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #game-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 800px;
+            height: 100vh; 
+            max-height: 600px;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            min-width: 180px;
+        }
+        
+        .ui-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+        
+        .ui-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            font-size: 16px;
+        }
+        
+        #game-over, #level-up, #pause-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 26, 46, 0.95);
+            padding: 30px 40px;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            width: 90%;
+            max-width: 450px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+        
+        #pause-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        #pause-btn:hover {
+            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 10;
+            padding: 0 20px;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.9);
+            background: rgba(0, 0, 0, 0.6);
+        }
+        
+        #action-btn {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff4d4d 0%, #cc0000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            user-select: none;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(204, 0, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        #action-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 15px rgba(204, 0, 0, 0.4);
+        }
+        
+        button {
+            background: linear-gradient(to right, #4CAF50, #2E8B57);
+            border: none;
+            color: white;
+            padding: 14px 30px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #4CAF50, #2E8B57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+            margin: 5px 0;
+        }
+        
+        #leaderboard {
+            margin-top: 20px;
+            width: 100%;
+            text-align: left;
+        }
+        
+        #leaderboard h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #4CAF50;
+            font-size: 22px;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 16px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #4CAF50, #2E8B57);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .unlock-notification {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            border: 1px solid gold;
+            color: gold;
+            text-align: center;
+            z-index: 20;
+            display: none;
+            animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translate(-50%, -20px); }
+            10%, 90% { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .floating-text {
+            position: absolute;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 5;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            animation: floatUp 1.5s ease-in forwards;
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+        
+        /* Media queries for responsiveness */
+        @media (max-width: 768px) {
+            #ui {
+                top: 10px;
+                left: 10px;
+                padding: 12px;
+                font-size: 16px;
+                min-width: 160px;
+            }
+            
+            .ui-item {
+                font-size: 16px;
+            }
+            
+            .control-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            #action-btn {
+                width: 80px;
+                height: 80px;
+                font-size: 18px;
+            }
+            
+            #pause-btn {
+                top: 10px;
+                right: 10px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            #game-over, #level-up, #pause-menu {
+                padding: 25px;
+            }
+            
+            h2 {
+                font-size: 28px;
+            }
+            
+            p {
+                font-size: 16px;
+            }
+            
+            button {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #ui {
+                flex-direction: row;
+                flex-wrap: wrap;
+                width: calc(100% - 20px);
+                gap: 15px;
+            }
+            
+            .control-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 22px;
+            }
+            
+            #action-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 16px;
+            }
+            
+            #controls {
+                gap: 15px;
+            }
+            
+            .ui-item {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div id="game-container"></div>
+    
+    <div id="ui">
+        <div class="ui-item">
+            <div class="ui-icon">📈</div>
+            <div>Level: <span id="level">1</span></div>
+        </div>
+        <div class="ui-item">
+            <div class="ui-icon">⭐</div>
+            <div>Ochko: <span id="score">0</span></div>
+        </div>
+        <div class="ui-item">
+            <div class="ui-icon">❤️</div>
+            <div>Jon: <span id="hp">3</span></div>
+        </div>
+        <div class="ui-item">
+            <div class="ui-icon">⏱️</div>
+            <div>Vaqt: <span id="time">60</span></div>
+        </div>
+        <div class="progress-bar">
+            <div id="progress-level" class="progress" style="width: 0%"></div>
+        </div>
+    </div>
+    
+    <button id="pause-btn">⏸️</button>
+    
+    <div id="controls">
+        <div class="control-btn" id="left-btn">←</div>
+        <div id="action-btn">CHOP!</div>
+        <div class="control-btn" id="right-btn">→</div>
+    </div>
+    
+    <div id="game-over">
+        <h2>O‘yin Tugadi!</h2>
+        <p>Sizning ochkosingiz: <span id="final-score">0</span></p>
+        <p>Eng yuqori natija: <span id="high-score">0</span></p>
+        
+        <div id="leaderboard">
+            <h3>Reyting</h3>
+            <div id="leaderboard-list"></div>
+        </div>
+        
+        <button id="restart">Qayta Boshlash</button>
+    </div>
+    
+    <div id="level-up">
+        <h2>Level Up!</h2>
+        <p>Yangi level: <span id="new-level">1</span></p>
+        <p id="reward-text">Tabriklaymiz! Yangi skin qo‘shildi.</p>
+        <button id="continue">Davom Etish</button>
+    </div>
+    
+    <div id="pause-menu">
+        <h2>Pauza</h2>
+        <p>O‘yin vaqtincha to‘xtatilgan</p>
+        <button id="resume">Davom Etish</button>
+        <button id="restart-pause">Qayta Boshlash</button>
+        <button id="mute-btn">Tovush: Yoqilgan</button>
+    </div>
+    
+    <div class="unlock-notification" id="unlock-notification">
+        Yangi skin qulfdan chiqdi!
+    </div>
+
+    <script>
+        // Asosiy o‘yin o‘zgaruvchilari
+        let scene, camera, renderer, tree, person, axe;
+        let level = 1, score = 0, hp = 3, timeLeft = 60;
+        let gameActive = true;
+        let gamePaused = false;
+        let branches = [];
+        let clock = new THREE.Clock();
+        let isChoping = false;
+        let isMuted = false;
+        let highScore = 0;
+        let personAngle = 0;
+        let personDistance = 5;
+        
+        // Tovushlar
+        const sounds = {
+            chop: new Howl({ src: ['https://assets.codepen.io/21542/howler-chop.mp3'] }),
+            ouch: new Howl({ src: ['https://assets.codepen.io/21542/howler-ouch.mp3'] }),
+            background: new Howl({ 
+                src: ['https://assets.codepen.io/21542/howler-background.mp3'],
+                loop: true,
+                volume: 0.3
+            }),
+            levelup: new Howl({ src: ['https://assets.codepen.io/21542/howler-levelup.mp3'] }),
+            gameover: new Howl({ src: ['https://assets.codepen.io/21542/howler-gameover.mp3'] }),
+            reward: new Howl({ src: ['https://assets.codepen.io/21542/howler-reward.mp3'] })
+        };
+
+        // UI elementlari
+        const levelElement = document.getElementById('level');
+        const scoreElement = document.getElementById('score');
+        const hpElement = document.getElementById('hp');
+        const timeElement = document.getElementById('time');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const highScoreElement = document.getElementById('high-score');
+        const restartButton = document.getElementById('restart');
+        const levelUpScreen = document.getElementById('level-up');
+        const newLevelElement = document.getElementById('new-level');
+        const continueButton = document.getElementById('continue');
+        const pauseMenu = document.getElementById('pause-menu');
+        const pauseButton = document.getElementById('pause-btn');
+        const resumeButton = document.getElementById('resume');
+        const restartPauseButton = document.getElementById('restart-pause');
+        const muteButton = document.getElementById('mute-btn');
+        const actionButton = document.getElementById('action-btn');
+        const leftButton = document.getElementById('left-btn');
+        const rightButton = document.getElementById('right-btn');
+        const progressLevel = document.getElementById('progress-level');
+        const leaderboardList = document.getElementById('leaderboard-list');
+        const unlockNotification = document.getElementById('unlock-notification');
+        const rewardText = document.getElementById('reward-text');
+
+        // Init funktsiyasi
+        function init() {
+            // Sahna, kamera va rendererni sozlash
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+            scene.fog = new THREE.Fog(0x1a1a2e, 5, 20);
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 7, 12);
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('game-container').appendChild(renderer.domElement);
+            
+            // Yorug'lik
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 1024;
+            directionalLight.shadow.mapSize.height = 1024;
+            scene.add(directionalLight);
+            
+            // Er
+            const groundGeometry = new THREE.CircleGeometry(15, 32);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x2E8B57,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            ground.position.y = -0.1;
+            scene.add(ground);
+            
+            // Daraxt va personaj yaratish
+            createTree();
+            createPerson();
+            createAxe();
+            
+            // Kontrollerlar
+            window.addEventListener('keydown', handleKeyPress);
+            window.addEventListener('resize', onWindowResize);
+            
+            // Sensorli boshqaruv
+            setupTouchControls();
+            
+            // Tugmalar
+            pauseButton.addEventListener('click', togglePause);
+            resumeButton.addEventListener('click', togglePause);
+            restartPauseButton.addEventListener('click', restartGame);
+            restartButton.addEventListener('click', restartGame);
+            continueButton.addEventListener('click', () => {
+                levelUpScreen.style.display = 'none';
+            });
+            actionButton.addEventListener('click', chopTree);
+            muteButton.addEventListener('click', toggleMute);
+            leftButton.addEventListener('click', () => rotatePerson(-0.2));
+            rightButton.addEventListener('click', () => rotatePerson(0.2));
+            
+            // Leaderboard yuklash
+            loadLeaderboard();
+            
+            // O‘yinni boshlash
+            if (!isMuted) sounds.background.play();
+            animate();
+            startTimer();
+            
+            // High score yuklash
+            highScore = parseInt(localStorage.getItem('treeCuttingHighScore')) || 0;
+            
+            // Particles.js konfiguratsiyasi
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 30, density: { enable: true, value_area: 800 } },
+                    color: { value: "#4CAF50" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: { enable: false },
+                    move: {
+                        enable: true,
+                        speed: 1,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    }
+                },
+                retina_detect: true
+            });
+        }
+
+        function createTree() {
+            // Avvalgi daraxtni o'chirish
+            if (tree) {
+                scene.remove(tree);
+                branches = [];
+            }
+            
+            // Daraxt asasi (po'stlog'i)
+            const trunkGeometry = new THREE.CylinderGeometry(0.7, 1.0, 4, 12);
+            const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.position.y = 2;
+            trunk.castShadow = true;
+            trunk.receiveShadow = true;
+            scene.add(trunk);
+            
+            // Daraxt shoxlari va barglari
+            const treeTop = new THREE.Group();
+            
+            // Levelga qarab shoxlar soni
+            const branchesCount = Math.min(level + 3, 20);
+            const treeType = level % 4; // 4 xil daraxt turi
+            
+            for (let i = 0; i < branchesCount; i++) {
+                const branchLength = 1.5 + Math.random() * 0.7;
+                const branchGeometry = new THREE.CylinderGeometry(0.1, 0.15, branchLength, 8);
+                const branchMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                const branch = new THREE.Mesh(branchGeometry, branchMaterial);
+                branch.castShadow = true;
+                
+                // Shoxning joylashuvi va yo'nalishi
+                const angle = Math.random() * Math.PI * 2;
+                const height = 3.5 + i * 0.6;
+                branch.position.set(
+                    Math.cos(angle) * 0.8,
+                    height,
+                    Math.sin(angle) * 0.8
+                );
+                
+                // Shoxni po'stlog'ga qarab qaratish
+                branch.lookAt(trunk.position);
+                branch.rotateX(Math.PI / 2);
+                
+                treeTop.add(branch);
+                
+                // Barglar - daraxt turiga qarab rang
+                let leavesColor;
+                switch(treeType) {
+                    case 0: leavesColor = 0x228B22; break; // Yashil
+                    case 1: leavesColor = 0x32CD32; break; // Och yashil
+                    case 2: leavesColor = 0x006400; break; // To'q yashil
+                    case 3: leavesColor = 0x7CFC00; break; // Yoruq yashil
+                }
+                
+                const leavesSize = 1.0 + Math.random() * 0.4;
+                const leavesGeometry = new THREE.SphereGeometry(leavesSize, 12, 12);
+                const leavesMaterial = new THREE.MeshLambertMaterial({ color: leavesColor });
+                const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+                leaves.castShadow = true;
+                
+                leaves.position.set(
+                    branch.position.x + Math.cos(angle) * branchLength/2,
+                    branch.position.y,
+                    branch.position.z + Math.sin(angle) * branchLength/2
+                );
+                
+                treeTop.add(leaves);
+                
+                // Shoxlarni global branches massiviga saqlash
+                branches.push({
+                    mesh: branch,
+                    leaves: leaves,
+                    angle: angle,
+                    height: height,
+                    fallen: false
+                });
+            }
+            
+            treeTop.position.y = 2;
+            scene.add(treeTop);
+            tree = treeTop;
+        }
+
+        function createPerson() {
+            // Avvalgi personajni o'chirish
+            if (person) {
+                scene.remove(person);
+            }
+            
+            // Personaj (soddagina modell)
+            const personGroup = new THREE.Group();
+            
+            // Bosh
+            const headGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+            const headMaterial = new THREE.MeshLambertMaterial({ color: 0xFFCC99 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 0.9;
+            head.castShadow = true;
+            personGroup.add(head);
+            
+            // Tana
+            const bodyGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.9, 16);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ 
+                color: getPersonColor()
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.1;
+            body.castShadow = true;
+            personGroup.add(body);
+            
+            // Qo'llar
+            const armGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.6, 16);
+            const armMaterial = new THREE.MeshLambertMaterial({ color: 0xFFCC99 });
+            
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.3, 0.2, 0);
+            rightArm.rotation.z = Math.PI / 3;
+            rightArm.castShadow = true;
+            personGroup.add(rightArm);
+            
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.3, 0.2, 0);
+            leftArm.rotation.z = -Math.PI / 3;
+            leftArm.castShadow = true;
+            personGroup.add(leftArm);
+            
+            // Oyoqlar
+            const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.7, 16);
+            const legMaterial = new THREE.MeshLambertMaterial({ 
+                color: getPersonPantsColor()
+            });
+            
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(0.2, -0.6, 0);
+            rightLeg.castShadow = true;
+            personGroup.add(rightLeg);
+            
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-0.2, -0.6, 0);
+            leftLeg.castShadow = true;
+            personGroup.add(leftLeg);
+            
+            scene.add(personGroup);
+            person = personGroup;
+            updatePersonPosition();
+            person.castShadow = true;
+        }
+
+        function getPersonColor() {
+            // Levelga qarab personaj rangini o'zgartiramiz
+            const colors = [0x3498db, 0xe74c3c, 0xf1c40f, 0x9b59b6, 0x1abc9c, 0xe67e22];
+            return colors[(level - 1) % colors.length];
+        }
+
+        function getPersonPantsColor() {
+            // Levelga qarab shim rangini o'zgartiramiz
+            const colors = [0x2c3e50, 0xc0392b, 0x7f8c8d, 0x8e44ad, 0x16a085, 0xd35400];
+            return colors[(level - 1) % colors.length];
+        }
+
+        function createAxe() {
+            // Avvalgi boltani o'chirish
+            if (axe && person && person.children[2]) {
+                person.children[2].remove(axe);
+            }
+            
+            // Bolta yaratish
+            const axeGroup = new THREE.Group();
+            
+            // Dasta
+            const handleGeometry = new THREE.CylinderGeometry(0.06, 0.06, 0.9, 16);
+            const handleMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.y = 0.45;
+            handle.castShadow = true;
+            axeGroup.add(handle);
+            
+            // Temir qism
+            const bladeGeometry = new THREE.BoxGeometry(0.25, 0.06, 0.15);
+            const bladeMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xC0C0C0,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+            const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+            blade.position.y = 0.9;
+            blade.castShadow = true;
+            axeGroup.add(blade);
+            
+            // Personajning o'ng qo'lida bolta
+            if (person && person.children[2]) {
+                person.children[2].add(axeGroup);
+                axeGroup.position.set(0.3, 0.3, 0);
+                axeGroup.rotation.z = Math.PI / 2;
+            }
+            
+            axe = axeGroup;
+        }
+
+        function setupTouchControls() {
+            // Sensorli boshqaruv
+            leftButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (gamePaused || !gameActive) return;
+                rotatePerson(-0.2);
+            });
+            
+            rightButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (gamePaused || !gameActive) return;
+                rotatePerson(0.2);
+            });
+            
+            actionButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (gamePaused || !gameActive) return;
+                chopTree();
+            });
+        }
+
+        function handleKeyPress(event) {
+            if (!gameActive || gamePaused) return;
+            
+            // Personajni harakatlantirish
+            switch(event.key) {
+                case 'ArrowLeft':
+                    rotatePerson(-0.2);
+                    break;
+                case 'ArrowRight':
+                    rotatePerson(0.2);
+                    break;
+                case ' ': // Space - chopish
+                    chopTree();
+                    break;
+                case 'p': // P - pauza
+                    togglePause();
+                    break;
+            }
+        }
+
+        function rotatePerson(angleDelta) {
+            personAngle += angleDelta;
+            updatePersonPosition();
+        }
+
+        function updatePersonPosition() {
+            // Personajni daraxt atrofida aylantiramiz
+            person.position.x = Math.cos(personAngle) * personDistance;
+            person.position.z = Math.sin(personAngle) * personDistance;
+            person.position.y = 0;
+            
+            // Personajni daraxtga qaratamiz
+            person.lookAt(tree.position);
+        }
+
+        function chopTree() {
+            if (!gameActive || gamePaused || isChoping) return;
+            
+            isChoping = true;
+            
+            // Animatsiya: bolta harakati
+            const initialRotation = axe.rotation.x;
+            const targetRotation = initialRotation - Math.PI / 2;
+            
+            // Animatsiya davomiyligi
+            const duration = 0.3;
+            const startTime = clock.getElapsedTime();
+            
+            function animateAxe() {
+                const currentTime = clock.getElapsedTime();
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Interpolyatsiya
+                axe.rotation.x = initialRotation + (targetRotation - initialRotation) * progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateAxe);
+                } else {
+                    // Animatsiya tugagach, bolta qaytariladi
+                    returnAxe();
+                }
+            }
+            
+            animateAxe();
+            
+            // Daraxt kesilganda tekshirish
+            checkHit();
+        }
+
+        function returnAxe() {
+            const initialRotation = axe.rotation.x;
+            const targetRotation = initialRotation + Math.PI / 2;
+            const duration = 0.3;
+            const startTime = clock.getElapsedTime();
+            
+            function animateReturn() {
+                const currentTime = clock.getElapsedTime();
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                axe.rotation.x = initialRotation + (targetRotation - initialRotation) * progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateReturn);
+                } else {
+                    isChoping = false;
+                }
+            }
+            
+            animateReturn();
+        }
+
+        function checkHit() {
+            // Personaj va daraxt o'rtasidagi masofani hisoblash
+            const personPos = new THREE.Vector3();
+            person.getWorldPosition(personPos);
+            
+            const treePos = new THREE.Vector3();
+            tree.getWorldPosition(treePos);
+            
+            const distance = personPos.distanceTo(treePos);
+            
+            if (distance < 5.5) {
+                // Daraxt kesildi
+                const pointsEarned = level;
+                score += pointsEarned;
+                scoreElement.textContent = score;
+                if (!isMuted) sounds.chop.play();
+                
+                // Ochko ko'rinishini yaratish
+                createFloatingText('+' + pointsEarned, person.position.x, person.position.y + 2, person.position.z);
+                
+                // Progress barni yangilash
+                updateProgressBar();
+                
+                // Vaqtni 2 soniya qo'shish
+                timeLeft += 2;
+                timeElement.textContent = timeLeft;
+                
+                // Daraxtni animatsiya bilan pastga tushirish
+                animateTreeFall();
+                
+                // Yangi level tekshirish
+                if (score >= level * 10) {
+                    levelUp();
+                }
+                
+                // High score yangilash
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('treeCuttingHighScore', highScore);
+                }
+            } else {
+                // Shoxga urildi
+                hp -= 1;
+                hpElement.textContent = hp;
+                if (!isMuted) sounds.ouch.play();
+                
+                // Jon tugab qolsa
+                if (hp <= 0) {
+                    endGame();
+                }
+            }
+        }
+
+        function createFloatingText(text, x, y, z) {
+            const floatingText = document.createElement('div');
+            floatingText.className = 'floating-text';
+            floatingText.textContent = text;
+            document.body.appendChild(floatingText);
+            
+            // 3D pozitsiyani 2D ekran pozitsiyasiga o'tkazish
+            const vector = new THREE.Vector3(x, y, z);
+            vector.project(camera);
+            
+            const screenX = (vector.x * 0.5 + 0.5) * window.innerWidth;
+            const screenY = (-(vector.y * 0.5) + 0.5) * window.innerHeight;
+            
+            floatingText.style.left = screenX + 'px';
+            floatingText.style.top = screenY + 'px';
+            
+            // Animatsiya tugagach elementni o'chirish
+            setTimeout(() => {
+                document.body.removeChild(floatingText);
+            }, 1500);
+        }
+
+        function updateProgressBar() {
+            const progress = (score % 10) / 10 * 100;
+            progressLevel.style.width = `${progress}%`;
+        }
+
+        function animateTreeFall() {
+            const initialY = tree.position.y;
+            const targetY = -5;
+            const duration = 1;
+            const startTime = clock.getElapsedTime();
+            
+            function animateFall() {
+                const currentTime = clock.getElapsedTime();
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                tree.position.y = initialY + (targetY - initialY) * progress;
+                
+                // Barglarning tarqalish effekti
+                branches.forEach(branch => {
+                    if (!branch.fallen) {
+                        branch.leaves.position.y += 0.07 * (Math.random() - 0.5);
+                        branch.leaves.position.x += 0.07 * (Math.random() - 0.5);
+                        branch.leaves.position.z += 0.07 * (Math.random() - 0.5);
+                        branch.leaves.scale.multiplyScalar(0.96);
+                        
+                        // Shoxlarning ham harakatlanishi
+                        branch.mesh.position.y += 0.04 * (Math.random() - 0.5);
+                        branch.mesh.rotation.z += 0.02 * (Math.random() - 0.5);
+                    }
+                });
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateFall);
+                } else {
+                    // Daraxt butunlay tushgach, yangi daraxt yaratish
+                    scene.remove(tree);
+                    branches = [];
+                    createTree();
+                }
+            }
+            
+            animateFall();
+        }
+
+        function startTimer() {
+            const timer = setInterval(() => {
+                if (!gameActive || gamePaused) {
+                    return;
+                }
+                
+                timeLeft -= 1;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        function levelUp() {
+            level += 1;
+            levelElement.textContent = level;
+            
+            // Yangi level ekranini ko'rsatish
+            newLevelElement.textContent = level;
+            levelUpScreen.style.display = 'flex';
+            
+            if (!isMuted) {
+                sounds.levelup.play();
+            }
+            
+            // Yangi skinlar/mukofotlar
+            if (level % 3 === 0) {
+                unlockReward();
+                rewardText.textContent = "Tabriklaymiz! Yangi skin qo'shildi.";
+            } else {
+                rewardText.textContent = "Keyingi levelga o'tdingiz!";
+            }
+        }
+
+        function unlockReward() {
+            // Skinlar va mukofotlarni ochish
+            unlockNotification.style.display = 'block';
+            if (!isMuted) sounds.reward.play();
+            
+            setTimeout(() => {
+                unlockNotification.style.display = 'none';
+            }, 2000);
+            
+            // Personaj rangini o'zgartirish
+            createPerson();
+            createAxe();
+        }
+
+        function endGame() {
+            gameActive = false;
+            finalScoreElement.textContent = score;
+            highScoreElement.textContent = highScore;
+            gameOverScreen.style.display = 'flex';
+            
+            if (!isMuted) {
+                sounds.background.stop();
+                sounds.gameover.play();
+            }
+            
+            // Leaderboard ni yangilash
+            updateLeaderboard();
+        }
+
+        function restartGame() {
+            // O'yinni qayta boshlash
+            scene.remove(tree);
+            scene.remove(person);
+            
+            branches = [];
+            level = 1;
+            score = 0;
+            hp = 3;
+            timeLeft = 60;
+            personAngle = 0;
+            
+            levelElement.textContent = level;
+            scoreElement.textContent = score;
+            hpElement.textContent = hp;
+            timeElement.textContent = timeLeft;
+            progressLevel.style.width = '0%';
+            
+            gameOverScreen.style.display = 'none';
+            pauseMenu.style.display = 'none';
+            gameActive = true;
+            gamePaused = false;
+            
+            createTree();
+            createPerson();
+            createAxe();
+            
+            if (!isMuted) sounds.background.play();
+            startTimer();
+        }
+
+        function updateLeaderboard() {
+            // Leaderboard ni yangilash (localStorage orqali)
+            let leaderboard = JSON.parse(localStorage.getItem('treeCuttingLeaderboard')) || [];
+            
+            leaderboard.push({
+                score: score,
+                level: level,
+                date: new Date().toLocaleDateString('uz-UZ')
+            });
+            
+            // Eng yuqori 5 ta natijani saqlash
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 5);
+            
+            localStorage.setItem('treeCuttingLeaderboard', JSON.stringify(leaderboard));
+            
+            // Leaderboard ro'yxatini ko'rsatish
+            displayLeaderboard(leaderboard);
+        }
+
+        function loadLeaderboard() {
+            // Leaderboard ni yuklash
+            let leaderboard = JSON.parse(localStorage.getItem('treeCuttingLeaderboard')) || [];
+            displayLeaderboard(leaderboard);
+        }
+
+        function displayLeaderboard(leaderboard) {
+            // Leaderboard ni ekranda ko'rsatish
+            leaderboardList.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                leaderboardList.innerHTML = '<div class="leaderboard-item">Hali reytinglar mavjud emas</div>';
+                return;
+            }
+            
+            leaderboard.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'leaderboard-item';
+                itemElement.innerHTML = `
+                    <div>${index + 1}. ${item.score} ochko</div>
+                    <div>Level: ${item.level} | ${item.date}</div>
+                `;
+                leaderboardList.appendChild(itemElement);
+            });
+        }
+
+        function togglePause() {
+            gamePaused = !gamePaused;
+            
+            if (gamePaused) {
+                pauseMenu.style.display = 'flex';
+                if (!isMuted) sounds.background.pause();
+            } else {
+                pauseMenu.style.display = 'none';
+                if (!isMuted) sounds.background.play();
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            
+            if (isMuted) {
+                sounds.background.pause();
+                muteButton.textContent = 'Tovush: O‘chirilgan';
+            } else {
+                sounds.background.play();
+                muteButton.textContent = 'Tovush: Yoqilgan';
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (!gamePaused && gameActive) {
+                // Daraxtning sekin tebranishi
+                if (tree) {
+                    tree.rotation.y += 0.005;
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // O‘yinni ishga tushirish
+        init();
+    </script>
+</body>
+</html>
